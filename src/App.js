@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LogOut, ChevronRight } from 'lucide-react';
+import { ChevronRight, Menu, X } from 'lucide-react';
 
 const spaceQuestionsDB = {
   'stars': {
@@ -175,7 +175,6 @@ export default function SpaceTrivia() {
   const [gamesPlayed, setGamesPlayed] = useState(0);
   const [expandedCategories, setExpandedCategories] = useState({});
   const [showMoreSubcats, setShowMoreSubcats] = useState({});
-  const [copiedTeamLink, setCopiedTeamLink] = useState(null);
   const [teamVisibility, setTeamVisibility] = useState('public');
   const [playerVisibility, setPlayerVisibility] = useState('public');
   const [selectedGameMode, setSelectedGameMode] = useState(null);
@@ -376,178 +375,148 @@ export default function SpaceTrivia() {
         </div>
       )}
 
+      {/* HOME - ONE COLUMN LAYOUT */}
       {screen === 'home' && currentUser && !isPlaying && !showGameSetup && (
-        <div style={{ display: 'flex', minHeight: '100vh' }}>
-          {/* LEFT */}
-          <div style={{ width: '360px', background: 'rgba(30, 58, 138, 0.4)', padding: '20px', borderRight: '1px solid rgba(59, 130, 246, 0.3)', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ background: 'rgba(30, 58, 138, 0.6)', padding: '15px', borderRadius: '8px', marginBottom: '20px', textAlign: 'center' }}>
-              <div style={{ fontSize: '40px', marginBottom: '10px' }}>{currentUser.avatar}</div>
-              <h4 style={{ margin: '0 0 8px 0' }}>{currentUser.username}</h4>
-              <p style={{ margin: '8px 0 5px 0', fontSize: '12px', color: '#93c5fd' }}>Score: {currentUser.totalScore}</p>
-              <p style={{ margin: '0', fontSize: '12px', color: '#93c5fd' }}>Games: {gamesPlayed}</p>
-            </div>
+        <div style={{ maxWidth: '100%', padding: '20px' }}>
+          {/* PROFILE */}
+          <div style={{ background: 'rgba(30, 58, 138, 0.6)', padding: '20px', borderRadius: '8px', marginBottom: '20px', textAlign: 'center' }}>
+            <div style={{ fontSize: '48px', marginBottom: '10px' }}>{currentUser.avatar}</div>
+            <h3 style={{ margin: '0 0 8px 0', fontSize: '16px' }}>{currentUser.username}</h3>
+            <p style={{ margin: '8px 0 5px 0', fontSize: '12px', color: '#93c5fd' }}>Score: {currentUser.totalScore}</p>
+            <p style={{ margin: '0', fontSize: '12px', color: '#93c5fd' }}>Games: {gamesPlayed}</p>
+          </div>
 
-            <h3 style={{ marginBottom: '12px', fontSize: '14px', borderBottom: '2px solid rgba(59, 130, 246, 0.5)', paddingBottom: '8px' }}>👥 My Teams</h3>
-            <div style={{ maxHeight: '150px', overflowY: 'auto', marginBottom: '15px' }}>
-              {currentUser.teamIds.map(teamId => {
+          {/* TITLE */}
+          <div style={{ textAlign: 'center', marginBottom: '30px' }}>
+            <h1 style={{ fontSize: '28px', margin: '0 0 5px 0' }}>Ether Aerospace</h1>
+            <h2 style={{ fontSize: '16px', margin: '0', color: '#93c5fd' }}>Space Trivia</h2>
+          </div>
+
+          {/* GAME MODES */}
+          <h2 style={{ textAlign: 'center', marginBottom: '15px', fontSize: '18px' }}>Quick Play</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px', maxWidth: '600px', margin: '0 auto 20px' }}>
+            <button onClick={() => setupGame('stars')} style={{ padding: '25px 15px', background: 'linear-gradient(135deg, #2563eb, #1e40af)', border: 'none', borderRadius: '12px', color: 'white', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold' }}>⚔️ Head-to-Head</button>
+            <button onClick={() => setupGame('galaxies')} style={{ padding: '25px 15px', background: 'linear-gradient(135deg, #ea580c, #c2410c)', border: 'none', borderRadius: '12px', color: 'white', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold' }}>⚡ Speed Round</button>
+            <button onClick={() => setupGame('stars')} style={{ padding: '25px 15px', background: 'linear-gradient(135deg, #16a34a, #15803d)', border: 'none', borderRadius: '12px', color: 'white', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold' }}>👥 Team Mode</button>
+            <button onClick={() => setupGame('galaxies')} style={{ padding: '25px 15px', background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', border: 'none', borderRadius: '12px', color: 'white', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold' }}>🎮 Custom</button>
+          </div>
+
+          {/* ACTION BUTTONS */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', maxWidth: '600px', margin: '0 auto 30px' }}>
+            <button onClick={() => setScreen('leaderboard')} style={{ padding: '12px', background: 'rgba(30, 58, 138, 0.6)', border: '2px solid rgba(59, 130, 246, 0.5)', borderRadius: '12px', color: 'white', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>🏆 Leaderboard</button>
+            <button style={{ padding: '12px', background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', border: 'none', borderRadius: '12px', color: 'white', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>📧 Subscribe</button>
+          </div>
+
+          {/* CATEGORIES */}
+          <h3 style={{ textAlign: 'center', marginBottom: '15px', fontSize: '16px' }}>📚 Categories</h3>
+          <div style={{ maxWidth: '600px', margin: '0 auto 30px' }}>
+            {Object.keys(majorCategories).map(categoryKey => {
+              const category = majorCategories[categoryKey];
+              const isExpanded = expandedCategories[categoryKey];
+              const displayedSubcats = getDisplayedSubcats(categoryKey);
+              const hasMore = category.subcategories.length > 3;
+
+              return (
+                <div key={categoryKey} style={{ marginBottom: '15px' }}>
+                  <button onClick={() => toggleCategory(categoryKey)} style={{ width: '100%', padding: '12px', background: 'rgba(30, 58, 138, 0.6)', border: '1px solid rgba(59, 130, 246, 0.3)', borderRadius: '6px', color: 'white', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold', display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                    <span>{category.name}</span>
+                    <span>{isExpanded ? '▼' : '▶'}</span>
+                  </button>
+
+                  {isExpanded && (
+                    <>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        {displayedSubcats.map(subcat => (
+                          <button key={subcat.id} onClick={() => setupGame(subcat.id)} style={{ padding: '10px', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid rgba(59, 130, 246, 0.3)', borderRadius: '4px', color: 'white', cursor: 'pointer', fontSize: '11px', textAlign: 'left', display: 'flex', justifyContent: 'space-between' }}>
+                            <span>{subcat.name}</span>
+                            <ChevronRight size={14} />
+                          </button>
+                        ))}
+                      </div>
+                      {hasMore && (
+                        <button onClick={() => toggleShowMore(categoryKey)} style={{ width: '100%', marginTop: '6px', padding: '6px', background: 'rgba(30, 58, 138, 0.5)', border: '1px dashed rgba(59, 130, 246, 0.5)', borderRadius: '3px', color: '#93c5fd', cursor: 'pointer', fontSize: '10px', fontWeight: 'bold' }}>
+                          {showMoreSubcats[categoryKey] ? '- Show Less' : '+ Load More'}
+                        </button>
+                      )}
+                    </>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* MY TEAMS */}
+          <h3 style={{ textAlign: 'center', marginBottom: '15px', fontSize: '16px' }}>👥 My Teams</h3>
+          <div style={{ maxWidth: '600px', margin: '0 auto 30px' }}>
+            {currentUser.teamIds.length === 0 ? (
+              <p style={{ textAlign: 'center', color: '#93c5fd', fontSize: '12px' }}>No teams yet</p>
+            ) : (
+              currentUser.teamIds.map(teamId => {
                 const team = teams.find(t => t.id === teamId);
                 return team && (
-                  <div key={teamId} style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '8px', marginBottom: '6px', borderRadius: '6px' }}>
-                    <h4 style={{ margin: '0 0 4px 0', fontSize: '12px' }}>{team.name}</h4>
-                    <p style={{ margin: '0', fontSize: '10px', color: '#93c5fd' }}>Score: {team.totalScore} | {team.members.length}m</p>
-                    <button onClick={() => leaveTeam(teamId)} style={{ width: '100%', marginTop: '4px', padding: '3px', background: '#ef4444', border: 'none', borderRadius: '3px', color: 'white', cursor: 'pointer', fontSize: '9px', fontWeight: 'bold' }}>Leave</button>
+                  <div key={teamId} style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '12px', marginBottom: '8px', borderRadius: '6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <h4 style={{ margin: '0 0 4px 0', fontSize: '12px' }}>{team.name}</h4>
+                      <p style={{ margin: '0', fontSize: '10px', color: '#93c5fd' }}>Score: {team.totalScore} | {team.members.length} members</p>
+                    </div>
+                    <button onClick={() => leaveTeam(teamId)} style={{ padding: '4px 8px', background: '#ef4444', border: 'none', borderRadius: '3px', color: 'white', cursor: 'pointer', fontSize: '9px', fontWeight: 'bold' }}>Leave</button>
                   </div>
                 );
-              })}
-            </div>
-
-            <h3 style={{ marginBottom: '10px', fontSize: '14px', borderBottom: '2px solid rgba(59, 130, 246, 0.5)', paddingBottom: '6px' }}>🌐 Available</h3>
-            <div style={{ maxHeight: '140px', overflowY: 'auto', marginBottom: '20px' }}>
-              {teams.filter(t => t.isPublic && !currentUser.teamIds.includes(t.id)).map(team => (
-                <div key={team.id} style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '8px', marginBottom: '6px', borderRadius: '6px' }}>
-                  <h4 style={{ margin: '0 0 3px 0', fontSize: '12px' }}>{team.name}</h4>
-                  <button style={{ width: '100%', padding: '4px', background: '#2563eb', border: 'none', borderRadius: '3px', color: 'white', cursor: 'pointer', fontSize: '9px' }}>Join</button>
-                </div>
-              ))}
-            </div>
-
-            <div style={{ flex: 1 }}></div>
-
-            <h3 style={{ marginBottom: '10px', fontSize: '14px', borderBottom: '2px solid rgba(59, 130, 246, 0.5)', paddingBottom: '6px' }}>➕ Create</h3>
-            <input type="text" placeholder="Team name" value={teamName} onChange={(e) => setTeamName(e.target.value)} style={{ width: '100%', padding: '8px', marginBottom: '8px', background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(59, 130, 246, 0.5)', borderRadius: '4px', color: 'white', fontSize: '11px', boxSizing: 'border-box' }} />
-            <button onClick={createTeam} style={{ width: '100%', padding: '8px', background: '#16a34a', border: 'none', borderRadius: '4px', color: 'white', fontWeight: 'bold', cursor: 'pointer', fontSize: '11px', marginBottom: '10px' }}>Create</button>
-            <button onClick={logout} style={{ width: '100%', padding: '12px', background: '#ef4444', border: 'none', borderRadius: '6px', color: 'white', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}>Logout</button>
+              })
+            )}
           </div>
 
-          {/* CENTER - GAME MODES */}
-          <div style={{ flex: 1, padding: '40px', overflowY: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-              <h1 style={{ fontSize: '36px', margin: '0 0 5px 0' }}>Ether Aerospace</h1>
-              <h2 style={{ fontSize: '20px', margin: '0', color: '#93c5fd' }}>Space Trivia</h2>
-            </div>
-
-            <h2 style={{ textAlign: 'center', marginBottom: '30px', fontSize: '24px' }}>Quick Play</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px', marginBottom: '40px', maxWidth: '600px', margin: '0 auto 40px' }}>
-              <button onClick={() => setupGame('stars')} style={{ padding: '40px', background: 'linear-gradient(135deg, #2563eb, #1e40af)', border: 'none', borderRadius: '12px', color: 'white', cursor: 'pointer', fontSize: '20px', fontWeight: 'bold' }}>⚔️ Head-to-Head</button>
-              <button onClick={() => setupGame('galaxies')} style={{ padding: '40px', background: 'linear-gradient(135deg, #ea580c, #c2410c)', border: 'none', borderRadius: '12px', color: 'white', cursor: 'pointer', fontSize: '20px', fontWeight: 'bold' }}>⚡ Speed Round</button>
-              <button onClick={() => setupGame('stars')} style={{ padding: '40px', background: 'linear-gradient(135deg, #16a34a, #15803d)', border: 'none', borderRadius: '12px', color: 'white', cursor: 'pointer', fontSize: '20px', fontWeight: 'bold' }}>👥 Team Mode</button>
-              <button onClick={() => setupGame('galaxies')} style={{ padding: '40px', background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', border: 'none', borderRadius: '12px', color: 'white', cursor: 'pointer', fontSize: '20px', fontWeight: 'bold' }}>🎮 Custom</button>
-            </div>
-
-            <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', width: '100%' }}>
-              <button onClick={() => setScreen('leaderboard')} style={{ padding: '15px 30px', background: 'rgba(30, 58, 138, 0.6)', border: '2px solid rgba(59, 130, 246, 0.5)', borderRadius: '12px', color: 'white', cursor: 'pointer', fontSize: '16px', fontWeight: 'bold' }}>🏆 Leaderboard</button>
-              <button style={{ padding: '15px 30px', background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', border: 'none', borderRadius: '12px', color: 'white', cursor: 'pointer', fontSize: '16px', fontWeight: 'bold' }}>📧 Subscribe</button>
-            </div>
+          {/* CREATE TEAM */}
+          <h3 style={{ textAlign: 'center', marginBottom: '15px', fontSize: '16px' }}>➕ Create Team</h3>
+          <div style={{ maxWidth: '600px', margin: '0 auto 30px' }}>
+            <input type="text" placeholder="Team name" value={teamName} onChange={(e) => setTeamName(e.target.value)} style={{ width: '100%', padding: '10px', marginBottom: '8px', background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(59, 130, 246, 0.5)', borderRadius: '4px', color: 'white', fontSize: '12px', boxSizing: 'border-box' }} />
+            <button onClick={createTeam} style={{ width: '100%', padding: '10px', background: '#16a34a', border: 'none', borderRadius: '4px', color: 'white', fontWeight: 'bold', cursor: 'pointer', fontSize: '12px', marginBottom: '10px' }}>Create Team</button>
           </div>
 
-          {/* RIGHT - CATEGORIES & RULES */}
-          <div style={{ width: '360px', background: 'rgba(30, 58, 138, 0.4)', padding: '20px', borderLeft: '1px solid rgba(59, 130, 246, 0.3)', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
-            <h3 style={{ marginBottom: '15px', fontSize: '16px', borderBottom: '2px solid rgba(59, 130, 246, 0.5)', paddingBottom: '10px' }}>📚 Categories</h3>
-            
-            <div style={{ flex: 1, overflowY: 'auto', marginBottom: '30px' }}>
-              {Object.keys(majorCategories).map(categoryKey => {
-                const category = majorCategories[categoryKey];
-                const isExpanded = expandedCategories[categoryKey];
-                const displayedSubcats = getDisplayedSubcats(categoryKey);
-                const hasMore = category.subcategories.length > 3;
-
-                return (
-                  <div key={categoryKey} style={{ marginBottom: '15px' }}>
-                    <button onClick={() => toggleCategory(categoryKey)} style={{ width: '100%', padding: '12px', background: 'rgba(30, 58, 138, 0.6)', border: '1px solid rgba(59, 130, 246, 0.3)', borderRadius: '6px', color: 'white', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold', display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                      <span>{category.name}</span>
-                      <span>{isExpanded ? '▼' : '▶'}</span>
-                    </button>
-
-                    {isExpanded && (
-                      <>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                          {displayedSubcats.map(subcat => (
-                            <button key={subcat.id} onClick={() => setupGame(subcat.id)} style={{ padding: '10px', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid rgba(59, 130, 246, 0.3)', borderRadius: '4px', color: 'white', cursor: 'pointer', fontSize: '11px', textAlign: 'left', display: 'flex', justifyContent: 'space-between' }}>
-                              <span>{subcat.name}</span>
-                              <ChevronRight size={14} />
-                            </button>
-                          ))}
-                        </div>
-                        {hasMore && (
-                          <button onClick={() => toggleShowMore(categoryKey)} style={{ width: '100%', marginTop: '6px', padding: '6px', background: 'rgba(30, 58, 138, 0.5)', border: '1px dashed rgba(59, 130, 246, 0.5)', borderRadius: '3px', color: '#93c5fd', cursor: 'pointer', fontSize: '10px', fontWeight: 'bold' }}>
-                            {showMoreSubcats[categoryKey] ? '- Show Less' : '+ Load More'}
-                          </button>
-                        )}
-                      </>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-
-            <h3 style={{ marginBottom: '12px', fontSize: '14px', borderBottom: '2px solid rgba(59, 130, 246, 0.5)', paddingBottom: '8px' }}>📖 Game Rules & Modes</h3>
-            
-            {!selectedGameMode ? (
-              <button onClick={() => setSelectedGameMode('modes')} style={{ width: '100%', padding: '12px', background: 'linear-gradient(135deg, #2563eb, #0891b2)', border: 'none', borderRadius: '6px', color: 'white', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold' }}>Select Game Mode</button>
-            ) : selectedGameMode === 'modes' ? (
-              <div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '8px', marginBottom: '12px' }}>
-                  <button onClick={() => setSelectedGameMode('head-to-head')} style={{ padding: '12px', background: 'linear-gradient(135deg, #2563eb, #1e40af)', border: 'none', borderRadius: '6px', color: 'white', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>⚔️ Head-to-Head</button>
-                  <button onClick={() => setSelectedGameMode('speed-round')} style={{ padding: '12px', background: 'linear-gradient(135deg, #ea580c, #c2410c)', border: 'none', borderRadius: '6px', color: 'white', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>⚡ Speed Round</button>
-                  <button onClick={() => setSelectedGameMode('team-mode')} style={{ padding: '12px', background: 'linear-gradient(135deg, #16a34a, #15803d)', border: 'none', borderRadius: '6px', color: 'white', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>👥 Team Mode</button>
-                  <button onClick={() => setSelectedGameMode('custom')} style={{ padding: '12px', background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', border: 'none', borderRadius: '6px', color: 'white', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>🎮 Custom</button>
-                </div>
-                <button onClick={() => setSelectedGameMode(null)} style={{ width: '100%', padding: '8px', background: 'rgba(30, 58, 138, 0.6)', border: '1px solid rgba(59, 130, 246, 0.5)', borderRadius: '6px', color: 'white', cursor: 'pointer', fontSize: '12px' }}>← Back</button>
-              </div>
-            ) : gameRules[selectedGameMode] ? (
-              <div>
-                <div style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '12px', borderRadius: '8px', border: '1px solid rgba(59, 130, 246, 0.3)', marginBottom: '12px' }}>
-                  <h4 style={{ margin: '0 0 8px 0', fontSize: '13px' }}>{gameRules[selectedGameMode].title}</h4>
-                  <ul style={{ margin: '0', paddingLeft: '16px', fontSize: '10px', color: '#93c5fd' }}>
-                    {gameRules[selectedGameMode].rules.map((rule, idx) => (
-                      <li key={idx} style={{ marginBottom: '4px' }}>{rule}</li>
-                    ))}
-                  </ul>
-                </div>
-                <button onClick={() => setSelectedGameMode('modes')} style={{ width: '100%', padding: '8px', background: 'rgba(30, 58, 138, 0.6)', border: '1px solid rgba(59, 130, 246, 0.5)', borderRadius: '6px', color: 'white', cursor: 'pointer', fontSize: '12px' }}>← Back to Modes</button>
-              </div>
-            ) : null}
+          {/* LOGOUT */}
+          <div style={{ maxWidth: '600px', margin: '0 auto 30px' }}>
+            <button onClick={logout} style={{ width: '100%', padding: '12px', background: '#ef4444', border: 'none', borderRadius: '6px', color: 'white', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>Logout</button>
           </div>
         </div>
       )}
 
       {/* PLAYING */}
       {isPlaying && currentQuestion && (
-        <div style={{ maxWidth: '800px', margin: '40px auto', padding: '20px' }}>
+        <div style={{ maxWidth: '100%', margin: '20px auto', padding: '20px' }}>
           <div style={{ background: 'rgba(30, 58, 138, 0.6)', padding: '20px', borderRadius: '12px', marginBottom: '20px', textAlign: 'center' }}>
-            <h3 style={{ margin: '0 0 10px 0' }}>{selectedSubcategory.toUpperCase()} - {selectedDifficulty.toUpperCase()}</h3>
-            <p style={{ margin: '0', color: '#93c5fd' }}>Time: {timeLeft}s | Score: {roundScore}</p>
+            <h3 style={{ margin: '0 0 10px 0', fontSize: '14px' }}>{selectedSubcategory.toUpperCase()} - {selectedDifficulty.toUpperCase()}</h3>
+            <p style={{ margin: '0', color: '#93c5fd', fontSize: '12px' }}>Time: {timeLeft}s | Score: {roundScore}</p>
           </div>
 
-          <div style={{ background: 'rgba(30, 58, 138, 0.8)', padding: '30px', borderRadius: '12px', marginBottom: '30px', minHeight: '120px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-            <p style={{ fontSize: '12px', color: '#93c5fd', margin: '0 0 15px 0' }}>Question {questionNumber}/{getTotalQuestions()}</p>
-            <h2 style={{ fontSize: '24px', margin: '0', textAlign: 'center' }}>{currentQuestion.q}</h2>
+          <div style={{ background: 'rgba(30, 58, 138, 0.8)', padding: '20px', borderRadius: '12px', marginBottom: '20px', minHeight: '100px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+            <p style={{ fontSize: '11px', color: '#93c5fd', margin: '0 0 10px 0' }}>Question {questionNumber}/{getTotalQuestions()}</p>
+            <h2 style={{ fontSize: '18px', margin: '0', textAlign: 'center' }}>{currentQuestion.q}</h2>
           </div>
 
           {!showResult ? (
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '10px', marginBottom: '20px' }}>
               {multipleChoiceOptions.map((option, idx) => (
-                <button key={idx} onClick={() => handleAnswer(option)} style={{ padding: '20px', background: 'rgba(30, 58, 138, 0.7)', border: '2px solid rgba(59, 130, 246, 0.5)', borderRadius: '8px', color: 'white', cursor: 'pointer', fontSize: '16px', textAlign: 'center' }}>
+                <button key={idx} onClick={() => handleAnswer(option)} style={{ padding: '15px', background: 'rgba(30, 58, 138, 0.7)', border: '2px solid rgba(59, 130, 246, 0.5)', borderRadius: '8px', color: 'white', cursor: 'pointer', fontSize: '13px', textAlign: 'center' }}>
                   {option}
                 </button>
               ))}
             </div>
           ) : (
-            <div style={{ background: 'rgba(30, 58, 138, 0.6)', padding: '20px', borderRadius: '12px', marginBottom: '20px' }}>
-              <p style={{ margin: '0 0 10px 0', fontSize: '16px', fontWeight: 'bold', color: selectedAnswer === currentQuestion.a ? '#4ade80' : '#ef4444' }}>
+            <div style={{ background: 'rgba(30, 58, 138, 0.6)', padding: '15px', borderRadius: '12px', marginBottom: '20px', width: '100%' }}>
+              <p style={{ margin: '0 0 8px 0', fontSize: '14px', fontWeight: 'bold', color: selectedAnswer === currentQuestion.a ? '#4ade80' : '#ef4444' }}>
                 {selectedAnswer === currentQuestion.a ? '✓ Correct!' : '✗ Incorrect'}
               </p>
-              <p style={{ margin: '0', fontSize: '14px', color: '#93c5fd' }}>Answer: {currentQuestion.a}</p>
+              <p style={{ margin: '0', fontSize: '12px', color: '#93c5fd' }}>Answer: {currentQuestion.a}</p>
             </div>
           )}
 
           {showResult && (
-            <button onClick={nextQuestion} style={{ width: '100%', padding: '15px', background: 'linear-gradient(135deg, #2563eb, #0891b2)', border: 'none', borderRadius: '6px', color: 'white', cursor: 'pointer', fontWeight: 'bold', marginBottom: '10px', fontSize: '16px' }}>
+            <button onClick={nextQuestion} style={{ width: '100%', padding: '12px', background: 'linear-gradient(135deg, #2563eb, #0891b2)', border: 'none', borderRadius: '6px', color: 'white', cursor: 'pointer', fontWeight: 'bold', marginBottom: '10px', fontSize: '13px' }}>
               Next Question
             </button>
           )}
 
-          <button onClick={returnToModes} style={{ width: '100%', padding: '12px', background: 'rgba(30, 58, 138, 0.6)', border: '1px solid rgba(59, 130, 246, 0.5)', borderRadius: '6px', color: 'white', cursor: 'pointer', fontWeight: 'bold' }}>
+          <button onClick={returnToModes} style={{ width: '100%', padding: '10px', background: 'rgba(30, 58, 138, 0.6)', border: '1px solid rgba(59, 130, 246, 0.5)', borderRadius: '6px', color: 'white', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}>
             Return to Game Modes
           </button>
         </div>
@@ -555,14 +524,14 @@ export default function SpaceTrivia() {
 
       {/* LEADERBOARD */}
       {screen === 'leaderboard' && currentUser && (
-        <div style={{ maxWidth: '800px', margin: '40px auto', padding: '20px' }}>
+        <div style={{ maxWidth: '600px', margin: '40px auto', padding: '20px' }}>
           <h2 style={{ textAlign: 'center', marginBottom: '30px' }}>🏆 Leaderboard</h2>
           
           <div style={{ background: 'rgba(30, 58, 138, 0.6)', padding: '20px', borderRadius: '12px', marginBottom: '20px' }}>
             <h3>Teams</h3>
             {teams.filter(t => t.isPublic).sort((a, b) => b.totalScore - a.totalScore).map((team, idx) => (
-              <div key={team.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '15px', borderBottom: '1px solid rgba(59, 130, 246, 0.3)' }}>
-                <span><span style={{ fontSize: '20px', fontWeight: 'bold', color: '#fbbf24' }}>{idx + 1}</span> {team.name}</span>
+              <div key={team.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', borderBottom: '1px solid rgba(59, 130, 246, 0.3)' }}>
+                <span><span style={{ fontSize: '16px', fontWeight: 'bold', color: '#fbbf24' }}>{idx + 1}.</span> {team.name}</span>
                 <span style={{ fontWeight: 'bold', color: '#4ade80' }}>{team.totalScore}</span>
               </div>
             ))}
@@ -571,8 +540,8 @@ export default function SpaceTrivia() {
           <div style={{ background: 'rgba(30, 58, 138, 0.6)', padding: '20px', borderRadius: '12px', marginBottom: '30px' }}>
             <h3>Individuals</h3>
             {users.filter(u => u.isPublic).sort((a, b) => b.totalScore - a.totalScore).map((user, idx) => (
-              <div key={user.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '15px', borderBottom: '1px solid rgba(59, 130, 246, 0.3)' }}>
-                <span><span style={{ fontSize: '20px', fontWeight: 'bold', color: '#fbbf24' }}>{idx + 1}</span> {user.avatar} {user.username}</span>
+              <div key={user.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', borderBottom: '1px solid rgba(59, 130, 246, 0.3)' }}>
+                <span><span style={{ fontSize: '16px', fontWeight: 'bold', color: '#fbbf24' }}>{idx + 1}.</span> {user.avatar} {user.username}</span>
                 <span style={{ fontWeight: 'bold', color: '#4ade80' }}>{user.totalScore}</span>
               </div>
             ))}
