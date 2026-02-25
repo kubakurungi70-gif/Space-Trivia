@@ -2,140 +2,81 @@ import React, { useState, useEffect } from 'react';
 import { ChevronRight } from 'lucide-react';
 
 const spaceQuestionsDB = {
-  'stars-constellations': {
-    easy: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    medium: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    hard: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-  },
-  'solar-system': {
-    easy: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    medium: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    hard: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-  },
-  'moons-satellites': {
-    easy: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    medium: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    hard: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-  },
-  'black-holes-neutron': {
-    easy: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    medium: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    hard: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-  },
-  'comets-asteroids': {
-    easy: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    medium: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    hard: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-  },
-  'exoplanets': {
-    easy: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    medium: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    hard: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-  },
-  'the-sun': {
-    easy: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    medium: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    hard: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
+  'stars': {
+    easy: [
+      { q: 'What is the nearest star to Earth besides the Sun?', a: 'Proxima Centauri' },
+      { q: 'What color are the hottest stars?', a: 'Blue' },
+      { q: 'What is a red giant?', a: 'A star in the late stages of its life that has expanded' },
+      { q: 'How do scientists classify stars?', a: 'By spectral type (O, B, A, F, G, K, M)' },
+      { q: 'What does the Sun\'s core do?', a: 'Fuses hydrogen into helium' },
+      { q: 'What is a white dwarf?', a: 'The dense remnant of a dead star' },
+      { q: 'What is a supergiant star?', a: 'An extremely large and luminous star' },
+      { q: 'What is a binary star system?', a: 'Two stars orbiting around each other' },
+      { q: 'What is the lifespan of a star like our Sun?', a: 'About 10 billion years' },
+      { q: 'What does the Hertzsprung-Russell diagram show?', a: 'The relationship between a star\'s temperature and brightness' },
+    ],
+    medium: [
+      { q: 'What is the mass-luminosity relationship?', a: 'More massive stars are more luminous' },
+      { q: 'What is the main sequence phase?', a: 'The longest phase where a star fuses hydrogen' },
+      { q: 'What is a red dwarf?', a: 'A small, cool, low-mass star' },
+      { q: 'How long does the Sun have left?', a: 'About 5 billion years' },
+      { q: 'What is stellar classification based on?', a: 'Temperature and spectral lines' },
+      { q: 'What happens when hydrogen exhausts?', a: 'It begins fusing in outer layers' },
+      { q: 'What is a variable star?', a: 'A star whose brightness changes over time' },
+      { q: 'Giant vs supergiant star?', a: 'Supergiants are larger and more luminous' },
+      { q: 'What is Chandrasekhar limit?', a: 'Maximum mass a white dwarf can have' },
+      { q: 'What is a pulsar?', a: 'A rapidly rotating neutron star' },
+    ],
+    hard: [
+      { q: 'What is the CNO cycle?', a: 'A nuclear fusion process in massive stars' },
+      { q: 'What is Eddington luminosity limit?', a: 'Maximum luminosity before radiation pressure' },
+      { q: 'Population I vs II stars?', a: 'Population I younger metal-rich; II older metal-poor' },
+      { q: 'What is a Wolf-Rayet star?', a: 'An extremely hot massive star' },
+      { q: 'What is stellar metallicity?', a: 'Abundance of elements heavier than helium' },
+      { q: 'What is TOV limit?', a: 'Maximum mass a neutron star can have' },
+      { q: 'What is triple-alpha process?', a: 'Fusion of helium into carbon in red giants' },
+      { q: 'What is Wolf-Rayet nebula?', a: 'Nebula from Wolf-Rayet star stellar wind' },
+      { q: 'Type Ia vs II supernovas?', a: 'Type Ia in white dwarfs; Type II in massive stars' },
+      { q: 'What is Hayashi track?', a: 'Path of young contracting stars' },
+    ],
   },
   'galaxies': {
-    easy: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    medium: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    hard: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-  },
-  'mars-rovers': {
-    easy: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    medium: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    hard: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-  },
-  'space-telescopes': {
-    easy: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    medium: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    hard: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-  },
-  'lunar-landers': {
-    easy: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    medium: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    hard: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-  },
-  'space-probes': {
-    easy: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    medium: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    hard: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-  },
-  'rockets-launch': {
-    easy: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    medium: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    hard: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-  },
-  'spacesuits-life': {
-    easy: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    medium: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    hard: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-  },
-  'robotics-space': {
-    easy: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    medium: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    hard: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-  },
-  'satellites-orbits': {
-    easy: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    medium: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    hard: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-  },
-  'famous-astronauts': {
-    easy: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    medium: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    hard: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-  },
-  'space-stations': {
-    easy: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    medium: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    hard: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-  },
-  'historic-missions': {
-    easy: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    medium: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    hard: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-  },
-  'commercial-companies': {
-    easy: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    medium: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    hard: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-  },
-  'space-tourism': {
-    easy: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    medium: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    hard: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-  },
-  'spaceports-launch': {
-    easy: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    medium: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    hard: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-  },
-  'space-debris': {
-    easy: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    medium: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    hard: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-  },
-  'asteroid-impact': {
-    easy: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    medium: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    hard: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-  },
-  'radiation-hazards': {
-    easy: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    medium: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    hard: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-  },
-  'movies-tv': {
-    easy: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    medium: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    hard: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-  },
-  'books-comics': {
-    easy: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    medium: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
-    hard: [{ q: 'Questions coming soon', a: 'Upload your questions' }],
+    easy: [
+      { q: 'What is the name of our galaxy?', a: 'The Milky Way' },
+      { q: 'Nearest major galaxy?', a: 'Andromeda Galaxy' },
+      { q: 'Three main types of galaxies?', a: 'Spiral, elliptical, and irregular' },
+      { q: 'What is a spiral galaxy?', a: 'A galaxy with rotating disks and spiral arms' },
+      { q: 'What is an elliptical galaxy?', a: 'A galaxy shaped like an ellipse or sphere' },
+      { q: 'What is at center of most galaxies?', a: 'A supermassive black hole' },
+      { q: 'How far is Andromeda?', a: 'About 2.5 million light-years' },
+      { q: 'What is a galaxy cluster?', a: 'A group of galaxies held together by gravity' },
+      { q: 'Milky Way galaxy type?', a: 'Spiral' },
+      { q: 'What are galactic arms?', a: 'Spiral structures with stars and gas' },
+    ],
+    medium: [
+      { q: 'Barred spiral vs regular spiral?', a: 'Barred spirals have a bar through center' },
+      { q: 'What is Hubble classification?', a: 'Method to classify galaxies by shape' },
+      { q: 'What is a dwarf galaxy?', a: 'A small galaxy with few stars' },
+      { q: 'What is lenticular galaxy?', a: 'Galaxy with disk and bulge but no arms' },
+      { q: 'Stars in Milky Way?', a: 'About 100-400 billion' },
+      { q: 'What is Local Group?', a: 'The cluster containing the Milky Way' },
+      { q: 'What is AGN?', a: 'A highly energetic region at galaxy center' },
+      { q: 'What is starburst galaxy?', a: 'A galaxy undergoing rapid star formation' },
+      { q: 'What is gravitational lensing?', a: 'Galaxy gravity bending light' },
+      { q: 'What is galactic cannibalism?', a: 'Large galaxy absorbing a smaller one' },
+    ],
+    hard: [
+      { q: 'What is Tully-Fisher relation?', a: 'Galaxy rotation speed vs luminosity' },
+      { q: 'Morphology-density relation?', a: 'Ellipticals more common in dense regions' },
+      { q: 'What is Faber-Jackson?', a: 'Galaxy luminosity vs velocity dispersion' },
+      { q: 'What is polar ring galaxy?', a: 'Ring of stars perpendicular to disk' },
+      { q: 'What is Sunyaev-Zeldovich effect?', a: 'CMB radiation distortion by clusters' },
+      { q: 'What is compact elliptical?', a: 'Small dense elliptical with high brightness' },
+      { q: 'Classical vs pseudobulge?', a: 'Classical from mergers; pseudo from instability' },
+      { q: 'What is virial theorem?', a: 'Kinetic and potential energy relationship' },
+      { q: 'What is cD galaxy?', a: 'Supergiant elliptical at cluster center' },
+      { q: 'Fundamental plane of ellipticals?', a: 'Size, brightness, velocity dispersion' },
+    ],
   },
 };
 
@@ -143,63 +84,51 @@ const majorCategories = {
   'space-science': {
     name: 'Space Science',
     subcategories: [
-      { id: 'stars-constellations', name: 'Stars & Constellations' },
-      { id: 'solar-system', name: 'Our Solar System' },
-      { id: 'moons-satellites', name: 'Moons & Natural Satellites' },
-      { id: 'black-holes-neutron', name: 'Black Holes & Neutron Stars' },
-      { id: 'comets-asteroids', name: 'Comets & Asteroids' },
-      { id: 'exoplanets', name: 'Exoplanets' },
-      { id: 'the-sun', name: 'The Sun' },
+      { id: 'stars', name: 'Stars' },
       { id: 'galaxies', name: 'Galaxies' },
+      { id: 'black-holes', name: 'Black Holes' },
+      { id: 'neutron-stars', name: 'Neutron Stars' },
+      { id: 'white-dwarfs', name: 'White Dwarfs' },
+      { id: 'supernovas', name: 'Supernovas' },
+      { id: 'nebulae', name: 'Nebulae' },
+      { id: 'exoplanets', name: 'Exoplanets' },
+      { id: 'quasars', name: 'Quasars' },
+      { id: 'dark-matter', name: 'Dark Matter' },
+      { id: 'cosmology', name: 'Cosmology' },
+      { id: 'grav-waves', name: 'Gravitational Waves' },
+      { id: 'cmb', name: 'CMB' },
+      { id: 'universe-struct', name: 'Universe Structure' },
+      { id: 'planets', name: 'Planets' },
+      { id: 'asteroids', name: 'Asteroids' },
+      { id: 'deep-space', name: 'Deep Space' },
+      { id: 'phenomena', name: 'Phenomena' },
+      { id: 'spectroscopy', name: 'Spectroscopy' },
+      { id: 'redshift', name: 'Redshift' },
     ]
   },
   'space-exploration': {
     name: 'Space Exploration',
     subcategories: [
-      { id: 'mars-rovers', name: 'Mars Rovers & Missions' },
-      { id: 'space-telescopes', name: 'Space Telescopes' },
-      { id: 'lunar-landers', name: 'Lunar & Planetary Landers' },
-      { id: 'space-probes', name: 'Space Probes' },
-    ]
-  },
-  'space-technology': {
-    name: 'Space Technology',
-    subcategories: [
-      { id: 'rockets-launch', name: 'Rockets & Launch Vehicles' },
-      { id: 'spacesuits-life', name: 'Space Suits & Life Support' },
-      { id: 'robotics-space', name: 'Robotics in Space' },
-      { id: 'satellites-orbits', name: 'Satellites & Orbits' },
-    ]
-  },
-  'human-spaceflight': {
-    name: 'Human Spaceflight & Astronauts',
-    subcategories: [
-      { id: 'famous-astronauts', name: 'Famous Astronauts & Cosmonauts' },
-      { id: 'space-stations', name: 'Space Stations & Habitats' },
-      { id: 'historic-missions', name: 'Historic Space Missions' },
-    ]
-  },
-  'space-industry': {
-    name: 'Space Industry & Economy',
-    subcategories: [
-      { id: 'commercial-companies', name: 'Commercial Spaceflight Companies' },
-      { id: 'space-tourism', name: 'Space Tourism' },
-      { id: 'spaceports-launch', name: 'Spaceports & Launch Sites' },
-    ]
-  },
-  'space-environment': {
-    name: 'Space Environment & Safety',
-    subcategories: [
-      { id: 'space-debris', name: 'Space Debris & Collisions' },
-      { id: 'asteroid-impact', name: 'Asteroid Impact Risks' },
-      { id: 'radiation-hazards', name: 'Radiation & Cosmic Hazards' },
-    ]
-  },
-  'scifi-pop-culture': {
-    name: 'Science Fiction & Space in Pop Culture',
-    subcategories: [
-      { id: 'movies-tv', name: 'Movies & TV Shows' },
-      { id: 'books-comics', name: 'Books & Comics' },
+      { id: 'apollo', name: 'Apollo Program' },
+      { id: 'voyager', name: 'Voyager & Pioneer' },
+      { id: 'mars-rovers', name: 'Mars Rovers' },
+      { id: 'lunar', name: 'Lunar Missions' },
+      { id: 'venus', name: 'Venus Probes' },
+      { id: 'jupiter', name: 'Jupiter Missions' },
+      { id: 'saturn', name: 'Saturn Missions' },
+      { id: 'mercury', name: 'Mercury' },
+      { id: 'stations', name: 'Space Stations' },
+      { id: 'shuttle', name: 'Space Shuttle' },
+      { id: 'satellites', name: 'Satellites' },
+      { id: 'robots', name: 'Robotic Explorers' },
+      { id: 'rockets', name: 'Rockets' },
+      { id: 'commercial', name: 'Commercial Space' },
+      { id: 'agencies', name: 'Space Agencies' },
+      { id: 'crewed', name: 'Crewed Spaceflight' },
+      { id: 'deep-probes', name: 'Deep Space Probes' },
+      { id: 'earth-obs', name: 'Earth Observation' },
+      { id: 'telescopes', name: 'Space Telescopes' },
+      { id: 'tech', name: 'Space Technology' },
     ]
   },
 };
@@ -215,14 +144,11 @@ const avatarOptions = ['🧑‍🚀', '👨‍🚀', '🪐', '⭐', '🌕', '�
 
 const generateMultipleChoice = (correctAnswer, subcategory, difficulty) => {
   const answers = [correctAnswer];
-  const allSubcategories = Object.values(majorCategories).flatMap(cat => cat.subcategories.map(sub => sub.id));
   while (answers.length < 4) {
-    const randomSubcat = allSubcategories[Math.floor(Math.random() * allSubcategories.length)];
-    const questions = spaceQuestionsDB[randomSubcat]?.[difficulty];
-    if (questions && questions.length > 0) {
-      const randomQuestion = questions[Math.floor(Math.random() * questions.length)];
-      if (!answers.includes(randomQuestion.a)) answers.push(randomQuestion.a);
-    }
+    const randomSubcat = ['stars', 'galaxies'][Math.floor(Math.random() * 2)];
+    const questions = spaceQuestionsDB[randomSubcat][difficulty];
+    const randomQuestion = questions[Math.floor(Math.random() * questions.length)];
+    if (!answers.includes(randomQuestion.a)) answers.push(randomQuestion.a);
   }
   return answers.sort(() => Math.random() - 0.5);
 };
