@@ -247,6 +247,96 @@ export default function SpaceTrivia() {
     setUsers(users.map(u => u.id === currentUser.id ? { ...currentUser, teamIds: currentUser.teamIds.filter(id => id !== teamId) } : u));
   };
 
+  const requestJoinTeam = (teamId) => {
+    const team = teams.find(t => t.id === teamId);
+    if (team.members.includes(currentUser.id)) return alert('Already in team');
+    if (team.joinRequests.includes(currentUser.id)) return alert('Request already pending');
+    
+    const updatedTeam = { ...team, joinRequests: [...team.joinRequests, currentUser.id] };
+    setTeams(teams.map(t => t.id === teamId ? updatedTeam : t));
+    alert('Request sent!');
+  };
+
+  const approveJoinRequest = (teamId, userId) => {
+    const team = teams.find(t => t.id === teamId);
+    const user = users.find(u => u.id === userId);
+    const updatedTeam = {
+      ...team,
+      members: [...team.members, userId],
+      joinRequests: team.joinRequests.filter(id => id !== userId)
+    };
+    setTeams(teams.map(t => t.id === teamId ? updatedTeam : t));
+    setUsers(users.map(u => u.id === userId ? { ...user, teamIds: [...user.teamIds, teamId] } : u));
+  };
+
+  const rejectJoinRequest = (teamId, userId) => {
+    const team = teams.find(t => t.id === teamId);
+    const updatedTeam = {
+      ...team,
+      joinRequests: team.joinRequests.filter(id => id !== userId)
+    };
+    setTeams(teams.map(t => t.id === teamId ? updatedTeam : t));
+  };
+
+  const removeMember = (teamId, userId) => {
+    const team = teams.find(t => t.id === teamId);
+    const user = users.find(u => u.id === userId);
+    const updatedTeam = {
+      ...team,
+      members: team.members.filter(m => m !== userId),
+      admins: team.admins.filter(a => a !== userId)
+    };
+    if (updatedTeam.members.length > 0 && updatedTeam.admins.length === 0) {
+      updatedTeam.admins = [updatedTeam.members[0]];
+    }
+    setTeams(teams.map(t => t.id === teamId ? updatedTeam : t));
+    setUsers(users.map(u => u.id === userId ? { ...user, teamIds: user.teamIds.filter(id => id !== teamId) } : u));
+  };
+
+  const requestJoinTeam = (teamId) => {
+    const team = teams.find(t => t.id === teamId);
+    if (team.members.includes(currentUser.id)) return alert('Already in team');
+    if (team.joinRequests.includes(currentUser.id)) return alert('Request already pending');
+    
+    const updatedTeam = { ...team, joinRequests: [...team.joinRequests, currentUser.id] };
+    setTeams(teams.map(t => t.id === teamId ? updatedTeam : t));
+    alert('Request sent to team admins!');
+  };
+
+  const approveJoinRequest = (teamId, userId) => {
+    const team = teams.find(t => t.id === teamId);
+    const updatedTeam = {
+      ...team,
+      members: [...team.members, userId],
+      joinRequests: team.joinRequests.filter(id => id !== userId)
+    };
+    setTeams(teams.map(t => t.id === teamId ? updatedTeam : t));
+    const user = users.find(u => u.id === userId);
+    setUsers(users.map(u => u.id === userId ? { ...user, teamIds: [...user.teamIds, teamId] } : u));
+  };
+
+  const rejectJoinRequest = (teamId, userId) => {
+    const team = teams.find(t => t.id === teamId);
+    const updatedTeam = {
+      ...team,
+      joinRequests: team.joinRequests.filter(id => id !== userId)
+    };
+    setTeams(teams.map(t => t.id === teamId ? updatedTeam : t));
+  };
+
+  const removeMember = (teamId, userId) => {
+    const team = teams.find(t => t.id === teamId);
+    const updatedTeam = {
+      ...team,
+      members: team.members.filter(m => m !== userId),
+      admins: team.admins.filter(a => a !== userId)
+    };
+    if (updatedTeam.members.length > 0 && updatedTeam.admins.length === 0) {
+      updatedTeam.admins = [updatedTeam.members[0]];
+    }
+    setTeams(teams.map(t => t.id === teamId ? updatedTeam : t));
+  };
+
   const setupGame = (subcategory) => {
     setSelectedSubcategory(subcategory);
     setShowGameSetup(true);
@@ -395,17 +485,87 @@ export default function SpaceTrivia() {
             </div>
 
             <h3 style={{ marginBottom: '12px', fontSize: '14px', borderBottom: '2px solid rgba(59, 130, 246, 0.5)', paddingBottom: '8px' }}>👥 My Teams</h3>
-            <div style={{ maxHeight: '150px', overflowY: 'auto', marginBottom: '15px' }}>
-              {currentUser.teamIds.map(teamId => {
-                const team = teams.find(t => t.id === teamId);
-                return team && (
-                  <div key={teamId} style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '8px', marginBottom: '6px', borderRadius: '6px' }}>
-                    <h4 style={{ margin: '0 0 4px 0', fontSize: '12px' }}>{team.name}</h4>
-                    <p style={{ margin: '0', fontSize: '10px', color: '#93c5fd' }}>Score: {team.totalScore} | {team.members.length}m</p>
-                    <button onClick={() => leaveTeam(teamId)} style={{ width: '100%', marginTop: '4px', padding: '3px', background: '#ef4444', border: 'none', borderRadius: '3px', color: 'white', cursor: 'pointer', fontSize: '9px', fontWeight: 'bold' }}>Leave</button>
+            <div style={{ maxHeight: '200px', overflowY: 'auto', marginBottom: '15px' }}>
+              {currentUser.teamIds.length === 0 ? (
+                <p style={{ color: '#93c5fd', fontSize: '11px', margin: '0' }}>No teams</p>
+              ) : (
+                currentUser.teamIds.map(teamId => {
+                  const team = teams.find(t => t.id === teamId);
+                  const isAdmin = team && team.admins.includes(currentUser.id);
+                  return team ? (
+                    <div key={teamId} style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '8px', marginBottom: '6px', borderRadius: '6px', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
+                      <h4 style={{ margin: '0 0 4px 0', fontSize: '12px' }}>{team.name}</h4>
+                      <p style={{ margin: '2px 0', color: '#93c5fd', fontSize: '10px' }}>Score: {team.totalScore} | {team.members.length} members</p>
+                      
+                      {/* PENDING REQUESTS */}
+                      {isAdmin && team.joinRequests.length > 0 && (
+                        <div style={{ marginTop: '4px', paddingTop: '4px', borderTop: '1px solid rgba(59, 130, 246, 0.2)' }}>
+                          <p style={{ margin: '0 0 3px 0', fontSize: '9px', fontWeight: 'bold', color: '#fbbf24' }}>Requests: {team.joinRequests.length}</p>
+                          {team.joinRequests.map(userId => {
+                            const user = users.find(u => u.id === userId);
+                            return (
+                              <div key={userId} style={{ display: 'flex', gap: '3px', marginBottom: '3px', fontSize: '9px' }}>
+                                <button onClick={() => approveJoinRequest(teamId, userId)} style={{ flex: 1, padding: '2px', background: '#16a34a', border: 'none', borderRadius: '2px', color: 'white', cursor: 'pointer', fontSize: '8px' }}>✓</button>
+                                <button onClick={() => rejectJoinRequest(teamId, userId)} style={{ flex: 1, padding: '2px', background: '#ef4444', border: 'none', borderRadius: '2px', color: 'white', cursor: 'pointer', fontSize: '8px' }}>✗</button>
+                                <span style={{ flex: 2, color: '#93c5fd' }}>{user?.username}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+
+                      {/* MEMBERS LIST */}
+                      {team.members.length > 0 && (
+                        <div style={{ marginTop: '4px', paddingTop: '4px', borderTop: '1px solid rgba(59, 130, 246, 0.2)' }}>
+                          <p style={{ margin: '0 0 3px 0', fontSize: '9px', fontWeight: 'bold', color: '#93c5fd' }}>Members</p>
+                          {team.members.map(memberId => {
+                            const member = users.find(u => u.id === memberId);
+                            const isMemberAdmin = team.admins.includes(memberId);
+                            return (
+                              <div key={memberId} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '2px', fontSize: '9px', color: '#93c5fd', marginBottom: '2px' }}>
+                                <span>{member?.avatar} {member?.username} {isMemberAdmin ? '(Admin)' : ''}</span>
+                                {isAdmin && memberId !== currentUser.id && (
+                                  <button onClick={() => removeMember(teamId, memberId)} style={{ padding: '0 3px', background: '#ef4444', border: 'none', borderRadius: '2px', color: 'white', cursor: 'pointer', fontSize: '7px' }}>✕</button>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+
+                      <button onClick={() => leaveTeam(teamId)} style={{ width: '100%', marginTop: '4px', padding: '3px', background: '#ef4444', border: 'none', borderRadius: '3px', color: 'white', cursor: 'pointer', fontSize: '9px', fontWeight: 'bold' }}>Leave</button>
+                    </div>
+                  ) : null;
+                })
+              )}
+            </div>
+
+            <h3 style={{ marginBottom: '10px', fontSize: '14px', borderBottom: '2px solid rgba(59, 130, 246, 0.5)', paddingBottom: '6px' }}>🌐 Find Players</h3>
+            <div style={{ maxHeight: '120px', overflowY: 'auto', marginBottom: '15px' }}>
+              {users.filter(u => u.isPublic && u.id !== currentUser.id).length === 0 ? (
+                <p style={{ color: '#93c5fd', fontSize: '9px', margin: '0' }}>No public players</p>
+              ) : (
+                users.filter(u => u.isPublic && u.id !== currentUser.id).slice(0, 5).map(user => (
+                  <div key={user.id} style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '6px', marginBottom: '4px', borderRadius: '4px', fontSize: '9px' }}>
+                    <p style={{ margin: '0 0 2px 0' }}>{user.avatar} {user.username}</p>
+                    <p style={{ margin: '0', color: '#93c5fd', fontSize: '8px' }}>Score: {user.totalScore}</p>
                   </div>
-                );
-              })}
+                ))
+              )}
+            </div>
+
+            <h3 style={{ marginBottom: '10px', fontSize: '14px', borderBottom: '2px solid rgba(59, 130, 246, 0.5)', paddingBottom: '6px' }}>🔍 Join Teams</h3>
+            <div style={{ maxHeight: '120px', overflowY: 'auto', marginBottom: '15px' }}>
+              {teams.filter(t => t.isPublic && !currentUser.teamIds.includes(t.id)).length === 0 ? (
+                <p style={{ color: '#93c5fd', fontSize: '9px', margin: '0' }}>No teams available</p>
+              ) : (
+                teams.filter(t => t.isPublic && !currentUser.teamIds.includes(t.id)).slice(0, 5).map(team => (
+                  <div key={team.id} style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '6px', marginBottom: '4px', borderRadius: '4px' }}>
+                    <p style={{ margin: '0 0 2px 0', fontSize: '9px', fontWeight: 'bold' }}>{team.name}</p>
+                    <button onClick={() => requestJoinTeam(team.id)} style={{ width: '100%', padding: '2px', background: '#2563eb', border: 'none', borderRadius: '2px', color: 'white', cursor: 'pointer', fontSize: '8px' }}>Request</button>
+                  </div>
+                ))
+              )}
             </div>
 
             <div style={{ flex: 1 }}></div>
