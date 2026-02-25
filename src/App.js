@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronRight, Menu, X } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 
 const spaceQuestionsDB = {
   'stars': {
@@ -180,6 +180,13 @@ export default function SpaceTrivia() {
   const [selectedGameMode, setSelectedGameMode] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [showGameSetup, setShowGameSetup] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     const savedUsers = localStorage.getItem('spaceTrivia_users');
@@ -375,10 +382,135 @@ export default function SpaceTrivia() {
         </div>
       )}
 
-      {/* HOME - ONE COLUMN LAYOUT */}
-      {screen === 'home' && currentUser && !isPlaying && !showGameSetup && (
+      {/* DESKTOP LAYOUT */}
+      {!isMobile && screen === 'home' && currentUser && !isPlaying && !showGameSetup && (
+        <div style={{ display: 'flex', minHeight: '100vh' }}>
+          {/* LEFT */}
+          <div style={{ width: '360px', background: 'rgba(30, 58, 138, 0.4)', padding: '20px', borderRight: '1px solid rgba(59, 130, 246, 0.3)', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ background: 'rgba(30, 58, 138, 0.6)', padding: '15px', borderRadius: '8px', marginBottom: '20px', textAlign: 'center' }}>
+              <div style={{ fontSize: '40px', marginBottom: '10px' }}>{currentUser.avatar}</div>
+              <h4 style={{ margin: '0 0 8px 0', fontSize: '14px' }}>{currentUser.username}</h4>
+              <p style={{ margin: '8px 0 5px 0', fontSize: '12px', color: '#93c5fd' }}>Score: {currentUser.totalScore}</p>
+              <p style={{ margin: '0', fontSize: '12px', color: '#93c5fd' }}>Games: {gamesPlayed}</p>
+            </div>
+
+            <h3 style={{ marginBottom: '12px', fontSize: '14px', borderBottom: '2px solid rgba(59, 130, 246, 0.5)', paddingBottom: '8px' }}>👥 My Teams</h3>
+            <div style={{ maxHeight: '150px', overflowY: 'auto', marginBottom: '15px' }}>
+              {currentUser.teamIds.map(teamId => {
+                const team = teams.find(t => t.id === teamId);
+                return team && (
+                  <div key={teamId} style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '8px', marginBottom: '6px', borderRadius: '6px' }}>
+                    <h4 style={{ margin: '0 0 4px 0', fontSize: '12px' }}>{team.name}</h4>
+                    <p style={{ margin: '0', fontSize: '10px', color: '#93c5fd' }}>Score: {team.totalScore} | {team.members.length}m</p>
+                    <button onClick={() => leaveTeam(teamId)} style={{ width: '100%', marginTop: '4px', padding: '3px', background: '#ef4444', border: 'none', borderRadius: '3px', color: 'white', cursor: 'pointer', fontSize: '9px', fontWeight: 'bold' }}>Leave</button>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div style={{ flex: 1 }}></div>
+
+            <h3 style={{ marginBottom: '10px', fontSize: '14px', borderBottom: '2px solid rgba(59, 130, 246, 0.5)', paddingBottom: '6px' }}>➕ Create</h3>
+            <input type="text" placeholder="Team name" value={teamName} onChange={(e) => setTeamName(e.target.value)} style={{ width: '100%', padding: '8px', marginBottom: '8px', background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(59, 130, 246, 0.5)', borderRadius: '4px', color: 'white', fontSize: '11px', boxSizing: 'border-box' }} />
+            <button onClick={createTeam} style={{ width: '100%', padding: '8px', background: '#16a34a', border: 'none', borderRadius: '4px', color: 'white', fontWeight: 'bold', cursor: 'pointer', fontSize: '11px', marginBottom: '10px' }}>Create</button>
+            <button onClick={logout} style={{ width: '100%', padding: '12px', background: '#ef4444', border: 'none', borderRadius: '6px', color: 'white', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}>Logout</button>
+          </div>
+
+          {/* CENTER */}
+          <div style={{ flex: 1, padding: '40px', overflowY: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+              <h1 style={{ fontSize: '36px', margin: '0 0 5px 0' }}>Ether Aerospace</h1>
+              <h2 style={{ fontSize: '20px', margin: '0', color: '#93c5fd' }}>Space Trivia</h2>
+            </div>
+
+            <h2 style={{ textAlign: 'center', marginBottom: '30px', fontSize: '24px' }}>Quick Play</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px', marginBottom: '40px', maxWidth: '600px', margin: '0 auto 40px' }}>
+              <button onClick={() => setupGame('stars')} style={{ padding: '40px', background: 'linear-gradient(135deg, #2563eb, #1e40af)', border: 'none', borderRadius: '12px', color: 'white', cursor: 'pointer', fontSize: '20px', fontWeight: 'bold' }}>⚔️ Head-to-Head</button>
+              <button onClick={() => setupGame('galaxies')} style={{ padding: '40px', background: 'linear-gradient(135deg, #ea580c, #c2410c)', border: 'none', borderRadius: '12px', color: 'white', cursor: 'pointer', fontSize: '20px', fontWeight: 'bold' }}>⚡ Speed Round</button>
+              <button onClick={() => setupGame('stars')} style={{ padding: '40px', background: 'linear-gradient(135deg, #16a34a, #15803d)', border: 'none', borderRadius: '12px', color: 'white', cursor: 'pointer', fontSize: '20px', fontWeight: 'bold' }}>👥 Team Mode</button>
+              <button onClick={() => setupGame('galaxies')} style={{ padding: '40px', background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', border: 'none', borderRadius: '12px', color: 'white', cursor: 'pointer', fontSize: '20px', fontWeight: 'bold' }}>🎮 Custom</button>
+            </div>
+
+            <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', width: '100%' }}>
+              <button onClick={() => setScreen('leaderboard')} style={{ padding: '15px 30px', background: 'rgba(30, 58, 138, 0.6)', border: '2px solid rgba(59, 130, 246, 0.5)', borderRadius: '12px', color: 'white', cursor: 'pointer', fontSize: '16px', fontWeight: 'bold' }}>🏆 Leaderboard</button>
+              <button style={{ padding: '15px 30px', background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', border: 'none', borderRadius: '12px', color: 'white', cursor: 'pointer', fontSize: '16px', fontWeight: 'bold' }}>📧 Subscribe</button>
+            </div>
+          </div>
+
+          {/* RIGHT */}
+          <div style={{ width: '360px', background: 'rgba(30, 58, 138, 0.4)', padding: '20px', borderLeft: '1px solid rgba(59, 130, 246, 0.3)', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+            <h3 style={{ marginBottom: '15px', fontSize: '16px', borderBottom: '2px solid rgba(59, 130, 246, 0.5)', paddingBottom: '10px' }}>📚 Categories</h3>
+            
+            <div style={{ flex: 1, overflowY: 'auto', marginBottom: '30px' }}>
+              {Object.keys(majorCategories).map(categoryKey => {
+                const category = majorCategories[categoryKey];
+                const isExpanded = expandedCategories[categoryKey];
+                const displayedSubcats = getDisplayedSubcats(categoryKey);
+                const hasMore = category.subcategories.length > 3;
+
+                return (
+                  <div key={categoryKey} style={{ marginBottom: '15px' }}>
+                    <button onClick={() => toggleCategory(categoryKey)} style={{ width: '100%', padding: '12px', background: 'rgba(30, 58, 138, 0.6)', border: '1px solid rgba(59, 130, 246, 0.3)', borderRadius: '6px', color: 'white', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold', display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                      <span>{category.name}</span>
+                      <span>{isExpanded ? '▼' : '▶'}</span>
+                    </button>
+
+                    {isExpanded && (
+                      <>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                          {displayedSubcats.map(subcat => (
+                            <button key={subcat.id} onClick={() => setupGame(subcat.id)} style={{ padding: '10px', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid rgba(59, 130, 246, 0.3)', borderRadius: '4px', color: 'white', cursor: 'pointer', fontSize: '11px', textAlign: 'left', display: 'flex', justifyContent: 'space-between' }}>
+                              <span>{subcat.name}</span>
+                              <ChevronRight size={14} />
+                            </button>
+                          ))}
+                        </div>
+                        {hasMore && (
+                          <button onClick={() => toggleShowMore(categoryKey)} style={{ width: '100%', marginTop: '6px', padding: '6px', background: 'rgba(30, 58, 138, 0.5)', border: '1px dashed rgba(59, 130, 246, 0.5)', borderRadius: '3px', color: '#93c5fd', cursor: 'pointer', fontSize: '10px', fontWeight: 'bold' }}>
+                            {showMoreSubcats[categoryKey] ? '- Show Less' : '+ Load More'}
+                          </button>
+                        )}
+                      </>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            <h3 style={{ marginBottom: '12px', fontSize: '14px', borderBottom: '2px solid rgba(59, 130, 246, 0.5)', paddingBottom: '8px' }}>📖 Game Rules & Modes</h3>
+            
+            {!selectedGameMode ? (
+              <button onClick={() => setSelectedGameMode('modes')} style={{ width: '100%', padding: '12px', background: 'linear-gradient(135deg, #2563eb, #0891b2)', border: 'none', borderRadius: '6px', color: 'white', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold' }}>Select Game Mode</button>
+            ) : selectedGameMode === 'modes' ? (
+              <div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '8px', marginBottom: '12px' }}>
+                  <button onClick={() => setSelectedGameMode('head-to-head')} style={{ padding: '12px', background: 'linear-gradient(135deg, #2563eb, #1e40af)', border: 'none', borderRadius: '6px', color: 'white', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>⚔️ Head-to-Head</button>
+                  <button onClick={() => setSelectedGameMode('speed-round')} style={{ padding: '12px', background: 'linear-gradient(135deg, #ea580c, #c2410c)', border: 'none', borderRadius: '6px', color: 'white', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>⚡ Speed Round</button>
+                  <button onClick={() => setSelectedGameMode('team-mode')} style={{ padding: '12px', background: 'linear-gradient(135deg, #16a34a, #15803d)', border: 'none', borderRadius: '6px', color: 'white', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>👥 Team Mode</button>
+                  <button onClick={() => setSelectedGameMode('custom')} style={{ padding: '12px', background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', border: 'none', borderRadius: '6px', color: 'white', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>🎮 Custom</button>
+                </div>
+                <button onClick={() => setSelectedGameMode(null)} style={{ width: '100%', padding: '8px', background: 'rgba(30, 58, 138, 0.6)', border: '1px solid rgba(59, 130, 246, 0.5)', borderRadius: '6px', color: 'white', cursor: 'pointer', fontSize: '12px' }}>← Back</button>
+              </div>
+            ) : gameRules[selectedGameMode] ? (
+              <div>
+                <div style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '12px', borderRadius: '8px', border: '1px solid rgba(59, 130, 246, 0.3)', marginBottom: '12px' }}>
+                  <h4 style={{ margin: '0 0 8px 0', fontSize: '13px' }}>{gameRules[selectedGameMode].title}</h4>
+                  <ul style={{ margin: '0', paddingLeft: '16px', fontSize: '10px', color: '#93c5fd' }}>
+                    {gameRules[selectedGameMode].rules.map((rule, idx) => (
+                      <li key={idx} style={{ marginBottom: '4px' }}>{rule}</li>
+                    ))}
+                  </ul>
+                </div>
+                <button onClick={() => setSelectedGameMode('modes')} style={{ width: '100%', padding: '8px', background: 'rgba(30, 58, 138, 0.6)', border: '1px solid rgba(59, 130, 246, 0.5)', borderRadius: '6px', color: 'white', cursor: 'pointer', fontSize: '12px' }}>← Back to Modes</button>
+              </div>
+            ) : null}
+          </div>
+        </div>
+      )}
+
+      {/* MOBILE LAYOUT - ONE COLUMN */}
+      {isMobile && screen === 'home' && currentUser && !isPlaying && !showGameSetup && (
         <div style={{ maxWidth: '100%', padding: '20px' }}>
-          {/* PROFILE */}
           <div style={{ background: 'rgba(30, 58, 138, 0.6)', padding: '20px', borderRadius: '8px', marginBottom: '20px', textAlign: 'center' }}>
             <div style={{ fontSize: '48px', marginBottom: '10px' }}>{currentUser.avatar}</div>
             <h3 style={{ margin: '0 0 8px 0', fontSize: '16px' }}>{currentUser.username}</h3>
@@ -386,30 +518,26 @@ export default function SpaceTrivia() {
             <p style={{ margin: '0', fontSize: '12px', color: '#93c5fd' }}>Games: {gamesPlayed}</p>
           </div>
 
-          {/* TITLE */}
           <div style={{ textAlign: 'center', marginBottom: '30px' }}>
             <h1 style={{ fontSize: '28px', margin: '0 0 5px 0' }}>Ether Aerospace</h1>
             <h2 style={{ fontSize: '16px', margin: '0', color: '#93c5fd' }}>Space Trivia</h2>
           </div>
 
-          {/* GAME MODES */}
           <h2 style={{ textAlign: 'center', marginBottom: '15px', fontSize: '18px' }}>Quick Play</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px', maxWidth: '600px', margin: '0 auto 20px' }}>
-            <button onClick={() => setupGame('stars')} style={{ padding: '25px 15px', background: 'linear-gradient(135deg, #2563eb, #1e40af)', border: 'none', borderRadius: '12px', color: 'white', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold' }}>⚔️ Head-to-Head</button>
-            <button onClick={() => setupGame('galaxies')} style={{ padding: '25px 15px', background: 'linear-gradient(135deg, #ea580c, #c2410c)', border: 'none', borderRadius: '12px', color: 'white', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold' }}>⚡ Speed Round</button>
-            <button onClick={() => setupGame('stars')} style={{ padding: '25px 15px', background: 'linear-gradient(135deg, #16a34a, #15803d)', border: 'none', borderRadius: '12px', color: 'white', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold' }}>👥 Team Mode</button>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
+            <button onClick={() => setupGame('stars')} style={{ padding: '25px 15px', background: 'linear-gradient(135deg, #2563eb, #1e40af)', border: 'none', borderRadius: '12px', color: 'white', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold' }}>⚔️ H2H</button>
+            <button onClick={() => setupGame('galaxies')} style={{ padding: '25px 15px', background: 'linear-gradient(135deg, #ea580c, #c2410c)', border: 'none', borderRadius: '12px', color: 'white', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold' }}>⚡ Speed</button>
+            <button onClick={() => setupGame('stars')} style={{ padding: '25px 15px', background: 'linear-gradient(135deg, #16a34a, #15803d)', border: 'none', borderRadius: '12px', color: 'white', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold' }}>👥 Team</button>
             <button onClick={() => setupGame('galaxies')} style={{ padding: '25px 15px', background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', border: 'none', borderRadius: '12px', color: 'white', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold' }}>🎮 Custom</button>
           </div>
 
-          {/* ACTION BUTTONS */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', maxWidth: '600px', margin: '0 auto 30px' }}>
-            <button onClick={() => setScreen('leaderboard')} style={{ padding: '12px', background: 'rgba(30, 58, 138, 0.6)', border: '2px solid rgba(59, 130, 246, 0.5)', borderRadius: '12px', color: 'white', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>🏆 Leaderboard</button>
-            <button style={{ padding: '12px', background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', border: 'none', borderRadius: '12px', color: 'white', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>📧 Subscribe</button>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '30px' }}>
+            <button onClick={() => setScreen('leaderboard')} style={{ padding: '12px', background: 'rgba(30, 58, 138, 0.6)', border: '2px solid rgba(59, 130, 246, 0.5)', borderRadius: '12px', color: 'white', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>🏆 Board</button>
+            <button style={{ padding: '12px', background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', border: 'none', borderRadius: '12px', color: 'white', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>📧 Sub</button>
           </div>
 
-          {/* CATEGORIES */}
           <h3 style={{ textAlign: 'center', marginBottom: '15px', fontSize: '16px' }}>📚 Categories</h3>
-          <div style={{ maxWidth: '600px', margin: '0 auto 30px' }}>
+          <div style={{ marginBottom: '30px' }}>
             {Object.keys(majorCategories).map(categoryKey => {
               const category = majorCategories[categoryKey];
               const isExpanded = expandedCategories[categoryKey];
@@ -445,9 +573,8 @@ export default function SpaceTrivia() {
             })}
           </div>
 
-          {/* MY TEAMS */}
           <h3 style={{ textAlign: 'center', marginBottom: '15px', fontSize: '16px' }}>👥 My Teams</h3>
-          <div style={{ maxWidth: '600px', margin: '0 auto 30px' }}>
+          <div style={{ marginBottom: '30px' }}>
             {currentUser.teamIds.length === 0 ? (
               <p style={{ textAlign: 'center', color: '#93c5fd', fontSize: '12px' }}>No teams yet</p>
             ) : (
@@ -457,7 +584,7 @@ export default function SpaceTrivia() {
                   <div key={teamId} style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '12px', marginBottom: '8px', borderRadius: '6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
                       <h4 style={{ margin: '0 0 4px 0', fontSize: '12px' }}>{team.name}</h4>
-                      <p style={{ margin: '0', fontSize: '10px', color: '#93c5fd' }}>Score: {team.totalScore} | {team.members.length} members</p>
+                      <p style={{ margin: '0', fontSize: '10px', color: '#93c5fd' }}>Score: {team.totalScore}</p>
                     </div>
                     <button onClick={() => leaveTeam(teamId)} style={{ padding: '4px 8px', background: '#ef4444', border: 'none', borderRadius: '3px', color: 'white', cursor: 'pointer', fontSize: '9px', fontWeight: 'bold' }}>Leave</button>
                   </div>
@@ -466,17 +593,13 @@ export default function SpaceTrivia() {
             )}
           </div>
 
-          {/* CREATE TEAM */}
           <h3 style={{ textAlign: 'center', marginBottom: '15px', fontSize: '16px' }}>➕ Create Team</h3>
-          <div style={{ maxWidth: '600px', margin: '0 auto 30px' }}>
+          <div style={{ marginBottom: '30px' }}>
             <input type="text" placeholder="Team name" value={teamName} onChange={(e) => setTeamName(e.target.value)} style={{ width: '100%', padding: '10px', marginBottom: '8px', background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(59, 130, 246, 0.5)', borderRadius: '4px', color: 'white', fontSize: '12px', boxSizing: 'border-box' }} />
             <button onClick={createTeam} style={{ width: '100%', padding: '10px', background: '#16a34a', border: 'none', borderRadius: '4px', color: 'white', fontWeight: 'bold', cursor: 'pointer', fontSize: '12px', marginBottom: '10px' }}>Create Team</button>
           </div>
 
-          {/* LOGOUT */}
-          <div style={{ maxWidth: '600px', margin: '0 auto 30px' }}>
-            <button onClick={logout} style={{ width: '100%', padding: '12px', background: '#ef4444', border: 'none', borderRadius: '6px', color: 'white', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>Logout</button>
-          </div>
+          <button onClick={logout} style={{ width: '100%', padding: '12px', background: '#ef4444', border: 'none', borderRadius: '6px', color: 'white', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold', marginBottom: '20px' }}>Logout</button>
         </div>
       )}
 
@@ -524,7 +647,7 @@ export default function SpaceTrivia() {
 
       {/* LEADERBOARD */}
       {screen === 'leaderboard' && currentUser && (
-        <div style={{ maxWidth: '600px', margin: '40px auto', padding: '20px' }}>
+        <div style={{ maxWidth: '800px', margin: '40px auto', padding: '20px' }}>
           <h2 style={{ textAlign: 'center', marginBottom: '30px' }}>🏆 Leaderboard</h2>
           
           <div style={{ background: 'rgba(30, 58, 138, 0.6)', padding: '20px', borderRadius: '12px', marginBottom: '20px' }}>
