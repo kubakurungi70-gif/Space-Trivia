@@ -181,7 +181,7 @@ export default function SpaceTrivia() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [showGameSetup, setShowGameSetup] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const [selectedTeamForGame, setSelectedTeamForGame] = useState(null);
+  const [expandedTeam, setExpandedTeam] = useState(null);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -255,65 +255,6 @@ export default function SpaceTrivia() {
     
     const updatedTeam = { ...team, joinRequests: [...team.joinRequests, currentUser.id] };
     setTeams(teams.map(t => t.id === teamId ? updatedTeam : t));
-    alert('Request sent!');
-  };
-
-  const approveJoinRequest = (teamId, userId) => {
-    const team = teams.find(t => t.id === teamId);
-    const user = users.find(u => u.id === userId);
-    const updatedTeam = {
-      ...team,
-      members: [...team.members, userId],
-      joinRequests: team.joinRequests.filter(id => id !== userId)
-    };
-    setTeams(teams.map(t => t.id === teamId ? updatedTeam : t));
-    setUsers(users.map(u => u.id === userId ? { ...user, teamIds: [...user.teamIds, teamId] } : u));
-  };
-
-  const rejectJoinRequest = (teamId, userId) => {
-    const team = teams.find(t => t.id === teamId);
-    const updatedTeam = {
-      ...team,
-      joinRequests: team.joinRequests.filter(id => id !== userId)
-    };
-    setTeams(teams.map(t => t.id === teamId ? updatedTeam : t));
-  };
-
-  const removeMember = (teamId, userId) => {
-    const team = teams.find(t => t.id === teamId);
-    const user = users.find(u => u.id === userId);
-    const updatedTeam = {
-      ...team,
-      members: team.members.filter(m => m !== userId),
-      admins: team.admins.filter(a => a !== userId)
-    };
-    if (updatedTeam.members.length > 0 && updatedTeam.admins.length === 0) {
-      updatedTeam.admins = [updatedTeam.members[0]];
-    }
-    setTeams(teams.map(t => t.id === teamId ? updatedTeam : t));
-    setUsers(users.map(u => u.id === userId ? { ...user, teamIds: user.teamIds.filter(id => id !== teamId) } : u));
-  };
-
-  const inviteUserToTeam = (teamId, userId) => {
-    const team = teams.find(t => t.id === teamId);
-    if (team.members.includes(userId)) return alert('User already in team');
-    const updatedTeam = {
-      ...team,
-      members: [...team.members, userId]
-    };
-    setTeams(teams.map(t => t.id === teamId ? updatedTeam : t));
-    const user = users.find(u => u.id === userId);
-    setUsers(users.map(u => u.id === userId ? { ...user, teamIds: [...user.teamIds, teamId] } : u));
-    alert(`${user.username} added to ${team.name}!`);
-  };
-
-  const requestJoinTeam = (teamId) => {
-    const team = teams.find(t => t.id === teamId);
-    if (team.members.includes(currentUser.id)) return alert('Already in team');
-    if (team.joinRequests.includes(currentUser.id)) return alert('Request already pending');
-    
-    const updatedTeam = { ...team, joinRequests: [...team.joinRequests, currentUser.id] };
-    setTeams(teams.map(t => t.id === teamId ? updatedTeam : t));
     alert('Request sent to team admins!');
   };
 
@@ -351,12 +292,7 @@ export default function SpaceTrivia() {
     setTeams(teams.map(t => t.id === teamId ? updatedTeam : t));
   };
 
-  const setupGame = (subcategory, mode = null) => {
-    if (mode === 'team-mode') {
-      // For team mode, first select team
-      setSelectedSubcategory(subcategory);
-      return; // Show team selector instead of game setup
-    }
+  const setupGame = (subcategory) => {
     setSelectedSubcategory(subcategory);
     setShowGameSetup(true);
   };
@@ -457,50 +393,6 @@ export default function SpaceTrivia() {
         </div>
       )}
 
-      {/* TEAM SELECTION FOR TEAM MODE */}
-      {selectedSubcategory && !showGameSetup && !isPlaying && (
-        <div style={{ maxWidth: '600px', margin: '60px auto', background: 'rgba(30, 58, 138, 0.8)', padding: '40px', borderRadius: '12px', border: '2px solid rgba(59, 130, 246, 0.5)' }}>
-          <h2 style={{ textAlign: 'center', marginBottom: '30px' }}>Select Your Team</h2>
-          
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '10px', marginBottom: '20px' }}>
-            {currentUser.teamIds.length === 0 ? (
-              <p style={{ textAlign: 'center', color: '#93c5fd' }}>You're not in any teams yet. Create or join one first!</p>
-            ) : (
-              currentUser.teamIds.map(teamId => {
-                const team = teams.find(t => t.id === teamId);
-                return team ? (
-                  <button
-                    key={teamId}
-                    onClick={() => {
-                      setSelectedTeamForGame(teamId);
-                      setShowGameSetup(true);
-                    }}
-                    style={{
-                      padding: '20px',
-                      background: 'linear-gradient(135deg, #16a34a, #15803d)',
-                      border: 'none',
-                      borderRadius: '8px',
-                      color: 'white',
-                      cursor: 'pointer',
-                      fontSize: '16px',
-                      fontWeight: 'bold',
-                      textAlign: 'left'
-                    }}
-                  >
-                    <div>{team.name}</div>
-                    <div style={{ fontSize: '12px', color: '#93c5fd', marginTop: '5px' }}>
-                      Score: {team.totalScore} | Members: {team.members.length}
-                    </div>
-                  </button>
-                ) : null;
-              })
-            )}
-          </div>
-
-          <button onClick={() => setSelectedSubcategory(null)} style={{ width: '100%', padding: '12px', background: 'rgba(30, 58, 138, 0.6)', border: '2px solid rgba(59, 130, 246, 0.5)', borderRadius: '6px', color: 'white', cursor: 'pointer', fontWeight: 'bold' }}>Back</button>
-        </div>
-      )}
-
       {/* GAME SETUP */}
       {showGameSetup && (
         <div style={{ maxWidth: '600px', margin: '60px auto', background: 'rgba(30, 58, 138, 0.8)', padding: '40px', borderRadius: '12px', border: '2px solid rgba(59, 130, 246, 0.5)' }}>
@@ -557,10 +449,36 @@ export default function SpaceTrivia() {
                   const isAdmin = team && team.admins.includes(currentUser.id);
                   return team ? (
                     <div key={teamId} style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '8px', marginBottom: '6px', borderRadius: '6px', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
-                      <h4 style={{ margin: '0 0 4px 0', fontSize: '12px' }}>{team.name}</h4>
-                      <p style={{ margin: '2px 0', color: '#93c5fd', fontSize: '10px' }}>Score: {team.totalScore} | {team.members.length} members</p>
-                      
-                      {/* PENDING REQUESTS */}
+                      <button onClick={() => setExpandedTeam(expandedTeam === teamId ? null : teamId)} style={{ width: '100%', background: 'none', border: 'none', color: 'white', cursor: 'pointer', textAlign: 'left', padding: '0' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <div>
+                            <h4 style={{ margin: '0 0 4px 0', fontSize: '12px' }}>{team.name}</h4>
+                            <p style={{ margin: '0', color: '#93c5fd', fontSize: '10px' }}>Score: {team.totalScore} | {team.members.length} members {isAdmin ? '(Admin)' : ''}</p>
+                          </div>
+                          <span style={{ color: '#93c5fd', fontSize: '12px' }}>{expandedTeam === teamId ? 'v' : '>'}</span>
+                        </div>
+                      </button>
+
+                      {expandedTeam === teamId && (
+                        <div style={{ marginTop: '8px', paddingTop: '8px', borderTop: '1px solid rgba(59, 130, 246, 0.2)' }}>
+                          {/* ADD MEMBERS FOR ADMINS */}
+                          {isAdmin && (
+                            <div style={{ marginBottom: '8px', padding: '6px', background: 'rgba(37, 99, 235, 0.2)', borderRadius: '4px' }}>
+                              <p style={{ margin: '0 0 4px 0', fontSize: '9px', fontWeight: 'bold', color: '#4ade80' }}>Add Members</p>
+                              {users.filter(u => u.isPublic && u.id !== currentUser.id && !team.members.includes(u.id)).length === 0 ? (
+                                <p style={{ margin: '0', fontSize: '8px', color: '#93c5fd' }}>No users to add</p>
+                              ) : (
+                                users.filter(u => u.isPublic && u.id !== currentUser.id && !team.members.includes(u.id)).map(user => (
+                                  <div key={user.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '3px', marginBottom: '2px', background: 'rgba(15, 23, 42, 0.4)', borderRadius: '3px' }}>
+                                    <span style={{ fontSize: '8px', color: '#93c5fd' }}>{user.avatar} {user.username}</span>
+                                    <button onClick={() => inviteUserToTeam(teamId, user.id)} style={{ padding: '1px 4px', background: '#2563eb', border: 'none', borderRadius: '2px', color: 'white', cursor: 'pointer', fontSize: '7px' }}>Add</button>
+                                  </div>
+                                ))
+                              )}
+                            </div>
+                          )}
+                          
+                          {/* PENDING REQUESTS */}
                       {isAdmin && team.joinRequests.length > 0 && (
                         <div style={{ marginTop: '4px', paddingTop: '4px', borderTop: '1px solid rgba(59, 130, 246, 0.2)' }}>
                           <p style={{ margin: '0 0 3px 0', fontSize: '9px', fontWeight: 'bold', color: '#fbbf24' }}>Requests: {team.joinRequests.length}</p>
@@ -603,57 +521,6 @@ export default function SpaceTrivia() {
               )}
             </div>
 
-            <h3 style={{ marginBottom: '10px', fontSize: '14px', borderBottom: '2px solid rgba(59, 130, 246, 0.5)', paddingBottom: '6px' }}>🌐 Find Players</h3>
-            <div style={{ maxHeight: '150px', overflowY: 'auto', marginBottom: '15px' }}>
-              {users.filter(u => u.isPublic && u.id !== currentUser.id).length === 0 ? (
-                <p style={{ color: '#93c5fd', fontSize: '9px', margin: '0' }}>No public players</p>
-              ) : (
-                users.filter(u => u.isPublic && u.id !== currentUser.id).map(user => {
-                  const myTeams = currentUser.teamIds.filter(teamId => {
-                    const team = teams.find(t => t.id === teamId);
-                    return team && team.admins.includes(currentUser.id) && !team.members.includes(user.id);
-                  });
-                  return (
-                    <div key={user.id} style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '6px', marginBottom: '4px', borderRadius: '4px', fontSize: '9px' }}>
-                      <p style={{ margin: '0 0 2px 0' }}>{user.avatar} {user.username}</p>
-                      <p style={{ margin: '0 0 3px 0', color: '#93c5fd', fontSize: '8px' }}>Score: {user.totalScore}</p>
-                      {myTeams.length > 0 && (
-                        <select 
-                          onChange={(e) => {
-                            if (e.target.value) {
-                              inviteUserToTeam(parseInt(e.target.value), user.id);
-                              e.target.value = '';
-                            }
-                          }}
-                          style={{ width: '100%', padding: '2px', background: '#2563eb', border: 'none', borderRadius: '2px', color: 'white', cursor: 'pointer', fontSize: '8px' }}
-                        >
-                          <option value="">Add to team...</option>
-                          {myTeams.map(teamId => {
-                            const team = teams.find(t => t.id === teamId);
-                            return <option key={teamId} value={teamId}>{team.name}</option>;
-                          })}
-                        </select>
-                      )}
-                    </div>
-                  );
-                })
-              )}
-            </div>
-
-            <h3 style={{ marginBottom: '10px', fontSize: '14px', borderBottom: '2px solid rgba(59, 130, 246, 0.5)', paddingBottom: '6px' }}>🔍 Join Teams</h3>
-            <div style={{ maxHeight: '120px', overflowY: 'auto', marginBottom: '15px' }}>
-              {teams.filter(t => t.isPublic && !currentUser.teamIds.includes(t.id)).length === 0 ? (
-                <p style={{ color: '#93c5fd', fontSize: '9px', margin: '0' }}>No teams available</p>
-              ) : (
-                teams.filter(t => t.isPublic && !currentUser.teamIds.includes(t.id)).slice(0, 5).map(team => (
-                  <div key={team.id} style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '6px', marginBottom: '4px', borderRadius: '4px' }}>
-                    <p style={{ margin: '0 0 2px 0', fontSize: '9px', fontWeight: 'bold' }}>{team.name}</p>
-                    <button onClick={() => requestJoinTeam(team.id)} style={{ width: '100%', padding: '2px', background: '#2563eb', border: 'none', borderRadius: '2px', color: 'white', cursor: 'pointer', fontSize: '8px' }}>Request</button>
-                  </div>
-                ))
-              )}
-            </div>
-
             <div style={{ flex: 1 }}></div>
 
             <h3 style={{ marginBottom: '10px', fontSize: '14px', borderBottom: '2px solid rgba(59, 130, 246, 0.5)', paddingBottom: '6px' }}>➕ Create</h3>
@@ -673,7 +540,7 @@ export default function SpaceTrivia() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px', marginBottom: '40px', maxWidth: '600px', margin: '0 auto 40px' }}>
               <button onClick={() => setupGame('stars')} style={{ padding: '40px', background: 'linear-gradient(135deg, #2563eb, #1e40af)', border: 'none', borderRadius: '12px', color: 'white', cursor: 'pointer', fontSize: '20px', fontWeight: 'bold' }}>⚔️ Head-to-Head</button>
               <button onClick={() => setupGame('galaxies')} style={{ padding: '40px', background: 'linear-gradient(135deg, #ea580c, #c2410c)', border: 'none', borderRadius: '12px', color: 'white', cursor: 'pointer', fontSize: '20px', fontWeight: 'bold' }}>⚡ Speed Round</button>
-              <button onClick={() => setupGame('stars', 'team-mode')} style={{ padding: '40px', background: 'linear-gradient(135deg, #16a34a, #15803d)', border: 'none', borderRadius: '12px', color: 'white', cursor: 'pointer', fontSize: '20px', fontWeight: 'bold' }}>👥 Team Mode</button>
+              <button onClick={() => setupGame('stars')} style={{ padding: '40px', background: 'linear-gradient(135deg, #16a34a, #15803d)', border: 'none', borderRadius: '12px', color: 'white', cursor: 'pointer', fontSize: '20px', fontWeight: 'bold' }}>👥 Team Mode</button>
               <button onClick={() => setupGame('galaxies')} style={{ padding: '40px', background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', border: 'none', borderRadius: '12px', color: 'white', cursor: 'pointer', fontSize: '20px', fontWeight: 'bold' }}>🎮 Custom</button>
             </div>
 
@@ -773,7 +640,7 @@ export default function SpaceTrivia() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
             <button onClick={() => setupGame('stars')} style={{ padding: '25px 15px', background: 'linear-gradient(135deg, #2563eb, #1e40af)', border: 'none', borderRadius: '12px', color: 'white', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold' }}>⚔️ H2H</button>
             <button onClick={() => setupGame('galaxies')} style={{ padding: '25px 15px', background: 'linear-gradient(135deg, #ea580c, #c2410c)', border: 'none', borderRadius: '12px', color: 'white', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold' }}>⚡ Speed</button>
-            <button onClick={() => setupGame('stars', 'team-mode')} style={{ padding: '25px 15px', background: 'linear-gradient(135deg, #16a34a, #15803d)', border: 'none', borderRadius: '12px', color: 'white', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold' }}>👥 Team</button>
+            <button onClick={() => setupGame('stars')} style={{ padding: '25px 15px', background: 'linear-gradient(135deg, #16a34a, #15803d)', border: 'none', borderRadius: '12px', color: 'white', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold' }}>👥 Team</button>
             <button onClick={() => setupGame('galaxies')} style={{ padding: '25px 15px', background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', border: 'none', borderRadius: '12px', color: 'white', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold' }}>🎮 Custom</button>
           </div>
 
