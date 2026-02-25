@@ -693,13 +693,27 @@ export default function SpaceTrivia() {
             ) : (
               currentUser.teamIds.map(teamId => {
                 const team = teams.find(t => t.id === teamId);
-                return team && (
-                  <div key={teamId} style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '12px', marginBottom: '8px', borderRadius: '6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div>
-                      <h4 style={{ margin: '0 0 4px 0', fontSize: '12px' }}>{team.name}</h4>
-                      <p style={{ margin: '0', fontSize: '10px', color: '#93c5fd' }}>Score: {team.totalScore}</p>
+                return team ? (
+                    <div key={teamId} style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '8px', marginBottom: '6px', borderRadius: '6px', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
+                      <button onClick={() => setExpandedTeam(expandedTeam === teamId ? null : teamId)} style={{ width: '100%', background: 'none', border: 'none', color: 'white', cursor: 'pointer', textAlign: 'left', padding: '0' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <div>
+                            <h4 style={{ margin: '0 0 4px 0', fontSize: '12px' }}>{team.name}</h4>
+                            <p style={{ margin: '0', color: '#93c5fd', fontSize: '10px' }}>Score: {team.totalScore} | {team.members.length} members</p>
+                          </div>
+                          <span style={{ color: '#93c5fd' }}>{expandedTeam === teamId ? 'v' : '>'}</span>
+                        </div>
+                      </button>
                     </div>
-                    <button onClick={() => leaveTeam(teamId)} style={{ padding: '4px 8px', background: '#ef4444', border: 'none', borderRadius: '3px', color: 'white', cursor: 'pointer', fontSize: '9px', fontWeight: 'bold' }}>Leave</button>
+                    {expandedTeam === teamId && (
+                        <div style={{ marginTop: '8px', paddingTop: '8px', borderTop: '1px solid rgba(59, 130, 246, 0.2)' }}>
+                          <p style={{ fontSize: '9px', color: '#93c5fa', marginBottom: '4px' }}>Members ({team.members.length})</p>
+                          {team.members.map(m => {
+                            const member = users.find(u => u.id === m);
+                            return <p key={m} style={{ fontSize: '8px', margin: '2px 0', color: '#93c5fd' }}>{member?.avatar} {member?.username}</p>;
+                          })}
+                        </div>
+                      )}<button onClick={() => leaveTeam(teamId)} style={{ padding: '4px 8px', background: '#ef4444', border: 'none', borderRadius: '3px', color: 'white', cursor: 'pointer', fontSize: '9px', fontWeight: 'bold' }}>Leave</button>
                   </div>
                 );
               })
